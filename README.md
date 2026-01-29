@@ -11,18 +11,21 @@ This repository is the official implementation of [Towards Improved Sentence Rep
 Clone the repository:
 ```bash
 git clone git@github.com:ipsitmantri/GLOT.git
+cd GLOT
 ```
 
 Create a virtual environment in python (recommended to use Python 3.10):
 
 ```bash
-conda create -n glot --file environment.yml python=3.10
-```
-
-Activate the virtual environment:
-```bash
+conda create -n glot python=3.10 -y
 conda activate glot
 ```
+
+Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
 ## HuggingFace Setup &#x1F917;
 Run the command:
 ```bash
