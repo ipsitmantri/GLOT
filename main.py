@@ -279,7 +279,7 @@ class GLOT(nn.Module):
         in_dim,
         hidden_dim=128,
         num_layers=2,
-        jk_mode="cat",      # "cat" | "lstm" | "max"
+        jk_mode="cat",  
         conv="gat",
         adjacency="threshold",
         tau=0.3,
@@ -287,7 +287,6 @@ class GLOT(nn.Module):
         device=None,
     ):
         super().__init__()
-        assert jk_mode in {"cat", "lstm", "max"}
 
         self.in_dim = in_dim
         self.hidden_dim = hidden_dim
@@ -1015,7 +1014,7 @@ def train_sts_regression(
         else:
             return y
 
-    run = wandb.init(project="llm_token_pooling")
+    run = wandb.init(project="GLOT")
     wandb.config.update(args)
 
     if args.precompute_hidden_states:
@@ -1185,7 +1184,7 @@ def train_pair_classification(
     val_ds_mm=None
 ):
     
-    run = wandb.init(project="llm_token_pooling")
+    run = wandb.init(project="GLOT")
     wandb.config.update(args)
     if args.precompute_hidden_states:
         train_loader = torch.utils.data.DataLoader(
@@ -1427,7 +1426,7 @@ def train_single_classification(
             collate_fn=lambda ex: collate_single(ex, backbone.tokenizer, text_key="text", device=device, args=args)
         )
 
-    run = wandb.init(project="llm_token_pooling")
+    run = wandb.init(project="GLOT")
     wandb.config.update(args)
     # Determine pooled dim
     sample = next(iter(val_loader))
@@ -1523,7 +1522,7 @@ def train_pair_embedding(
     device,
 ):
     
-    run = wandb.init(project="llm_token_pooling")
+    run = wandb.init(project="GLOT")
     wandb.config.update(args)
     if args.precompute_hidden_states:
         train_loader = torch.utils.data.DataLoader(
@@ -1626,7 +1625,7 @@ def train_pair_embedding(
 
     # Add key hyperparameters
     if args.pooling_method == "glot":
-        config_str += f"_layers{args.num_layers}_k{args.k}_{args.jk_mode}"
+        config_str += f"_layers{args.num_layers}_{args.jk_mode}"
 
     config_str += f"_lr{args.lr}_bs{args.batch_size}_ep{args.epochs}_len{args.max_length}"
 
@@ -1644,25 +1643,8 @@ def train_pair_embedding(
     if optimizer is not None:
         torch.save(pooler.state_dict(), save_path)
     
-    model = CustomMTEBModel(
-        model_name=None,
-        revision=None,
-        backbone=backbone,
-        pooler=pooler,
-        pooler_name=pooler_name,
-        device=device,
-        args=args
-    )
-    tasks = mteb.get_tasks(tasks=[args.mteb_task], languages=["eng"])
-    # tasks = mteb.get_tasks(tasks=["EmotionClassification", "SciFact", "RedditClustering", "AskUbuntuDupQuestions", "STS12", "TwitterSemEval2015", "SummEval"], languages=["eng"])
-    evaluation = mteb.MTEB(tasks=tasks)
-    results = evaluation.run(model, overwrite_results=True)
-    for result in results:
-        print(f"{result.task_name} | {result.get_score()}")
-        wandb.log({f"{result.task_name}": result.get_score()})
     
     return best_acc
-
 
 def evaluate_mteb(
     backbone: Backbone,
@@ -1671,7 +1653,7 @@ def evaluate_mteb(
     device,
     args
 ):
-    run = wandb.init(project="llm_token_pooling")
+    run = wandb.init(project="GLOT")
     wandb.config.update(args)
     if args.checkpoint_path != "standard" and args.checkpoint_path != "":
         if torch.cuda.is_available():

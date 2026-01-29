@@ -1,0 +1,125 @@
+program: main.py
+method: grid
+metric:
+  goal: maximize
+  name: metrics/acc
+name: mistral_mteb_full
+parameters:
+  adaptive_length:
+    value: 0
+  batch_size:
+    value: 32
+  checkpoint_path: # comment out for [cls, mean, max]
+    value: saved_models/embedding_mistralai_Mistral-7B-v0.1_glot_layers4_cat_lr2e-05_bs32_ep3_len128_proj512_samplefull.pth 
+  decoder_cls_last_token:
+    value: 1
+  epochs:
+    value: 3
+  eval_batch_size:
+    value: 32
+  gat_hidden_dim:
+    values:
+    - 256
+  graph_adj:
+    values:
+    - threshold
+  jk_mode:
+    values:
+    - cat
+  lr:
+    values:
+    - 2e-05
+  max_length:
+    values:
+    - 128
+  model_name_or_path:
+    value: mistralai/Mistral-7B-v0.1
+  mteb_task:
+    values:
+    - AmazonPolarityClassification
+    - AmazonReviewsClassification
+    - ArguAna
+    - ArxivClusteringP2P
+    - ArxivClusteringS2S
+    - BIOSSES
+    - Banking77Classification
+    - BiorxivClusteringP2P
+    - BiorxivClusteringS2S
+    - CQADupstackRetrieval
+    - ClimateFEVER
+    - DBPedia
+    - FEVER
+    - FiQA2018
+    - HotpotQA
+    - ImdbClassification
+    - MTOPDomainClassification
+    - MTOPIntentClassification
+    - MassiveIntentClassification
+    - MassiveScenarioClassification
+    - MedrxivClusteringP2P
+    - MedrxivClusteringS2S
+    - MindSmallReranking
+    - NFCorpus
+    - NQ
+    - QuoraRetrieval
+    - RedditClusteringP2P
+    - SCIDOCS
+    - SICK-R
+    - STS13
+    - STS14
+    - STS15
+    - STS16
+    - STSBenchmark
+    - SciDocsRR
+    - SprintDuplicateQuestions
+    - StackExchangeClustering
+    - StackExchangeClusteringP2P
+    - StackOverflowDupQuestions
+    - TRECCOVID
+    - Touche2020
+    - ToxicConversationsClassification
+    - TweetSentimentExtractionClassification
+    - TwentyNewsgroupsClustering
+    - TwitterURLCorpus
+    - MSMARCO
+    - AmazonCounterfactualClassification
+    - STS17
+    - STS22
+  num_layers:
+    values:
+    - 4
+  override_precompute:
+    value: 0
+  pooling_method:
+    values:
+    - glot # [adapool, cls, mean, max]
+  precompute_hidden_states:
+    value: 1
+  proj_dim:
+    values:
+    - 512
+  return_all_hidden_states:
+    value: 0
+  scorer_hidden:
+    values:
+    - 128
+  seed:
+    value: 0
+  task:
+    value: mteb
+  tau:
+    values:
+    - 0.3
+  temperature:
+    values:
+    - 0.1
+  verbose:
+    value: 1
+  weight_decay:
+    values:
+    - 1e-05
+command:
+- ${env}
+- python
+- ${program}
+- ${args}
