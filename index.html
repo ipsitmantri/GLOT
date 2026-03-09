@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLOT: Graph Learning Over Tokens</title>
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"> -->
+
+    <style>
+        :root {
+            --primary-color: #24507D; 
+            --accent-color: #B51700;  
+            --bg-color: #FAFAFA;
+            --text-color: #333333;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .conference {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+        .authors {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        .authors a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .affiliations {
+            font-size: 0.95em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .btn:hover { background-color: #1a3a5c; }
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        section {
+            margin-bottom: 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        h3 { color: #444; }
+        .teaser-img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .method-step {
+            margin-bottom: 40px;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .result-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+        .efficiency-graphic {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 25px 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .stat-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .stat-col h4 {
+            color: #888;
+            font-size: 1.3em;
+            margin: 0 0 10px 0;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #999;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #aaa;
+            font-weight: bold;
+        }
+        .stat-divider {
+            width: 1px;
+            background-color: #333; /* Darker line matching your slide */
+            height: 250px;
+            margin: 0 15px;
+        }
+        .highlight-col h4,
+        .highlight-col .stat-value,
+        .highlight-col .stat-label {
+            color: var(--primary-color); /* Matching the orange from your slide */
+        }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 650px) {
+            .efficiency-graphic {
+                flex-direction: column;
+            }
+            .stat-divider {
+                width: 80%;
+                height: 1px;
+                margin: 20px 0;
+            }
+        }
+        code {
+            display: inline-block; 
+            width: 100%; /* Whatever. The <code>'s width will change */
+        }
+        pre {
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Towards Improved Sentence Representations using Token Graphs</h1>
+        <div class="conference">ICLR 2026</div>
+        
+        <div class="authors">
+            <strong><a href="https://ipsitmantri.github.io" target="_blank">Krishna Sri Ipsit Mantri</a></strong><sup>1,2</sup>, 
+            <a href="https://www.damtp.cam.ac.uk/research/cia/person/cbs31/" target="_blank">Carola-Bibiane Schönlieb</a><sup>3</sup>, 
+            <a href="https://geometryinml.cs.uni-bonn.de/" target="_blank">Zorah Lähner</a><sup>1,2</sup>, 
+            <a href="https://scholar.google.com/citations?user=44LKqBsAAAAJ&hl=iw" target="_blank">Moshe Eliasof</a><sup>3,4</sup>
+        </div>
+        
+        <div class="affiliations">
+            <sup>1</sup>University of Bonn &nbsp;
+            <sup>2</sup>Lamarr Institute for Machine Learning and Artificial Intelligence<br>
+            <sup>3</sup>University of Cambridge &nbsp;
+            <sup>4</sup>Ben-Gurion University of the Negev
+        </div>
+
+        <div class="links">
+            <a href="https://arxiv.org/abs/2603.03389" class="btn" target="_blank"><i class="ai ai-arxiv"></i>Paper </a>
+            <a href="https://github.com/ipsitmantri/GLOT" class="btn" target="_blank"><i class="fa-brands fa-github"></i> Code</a>
+            <!-- <a href="https://ipsitmantri.github.io/publications" class="btn btn-outline">🌐 Other publications</a> -->
+        </div>
+    </header>
+
+    <section id="teaser">
+        <img src="assets/glot.png" alt="GLOT Architecture Teaser" class="teaser-img">
+        <p><strong>Abstract:</strong> Obtaining a single-vector representation from a Large Language Model's (LLM) token-level outputs is a critical step for nearly all sentence-level tasks. However, standard pooling methods like mean or max aggregation treat tokens as an independent set, discarding the rich relational structure captured by the model's self-attention layers and making them susceptible to signal dilution. To address this, we introduce GLOT, a lightweight, structure-aware pooling module that reframes pooling as relational learning followed by aggregation. Operating on the outputs of a frozen LLM, GLOT first constructs a latent token-similarity graph, then refines token representations with a graph neural network, and finally aggregates them using a readout layer. Experimentally, our approach is remarkably robust and efficient: on a diagnostic stress test where 90% of tokens are random distractors, GLOT maintains over 97% accuracy while baseline methods collapse. Furthermore, it is competitive with state-of-the-art techniques on benchmarks like GLUE and MTEB with 20x fewer trainable parameters and speeds up the training time by over 100x compared with parameter-efficient fine-tuning methods. Supported by a theoretical analysis of its expressive power, our work shows that learning over token graphs is a powerful paradigm for the efficient adaptation of frozen LLMs.</p>
+    </section>
+
+    <section id="methodology">
+        <h2>Methodology: Graph Learning Over Tokens</h2>
+        <p>Instead of discarding multi-hop linguistic dependencies, GLOT explicitly models token interactions through a three-step framework.</p>
+
+        <div class="method-step">
+            <h3>Step 1: Token Graph Construction</h3>
+            <div class="video-container">
+                <video controls autoplay loop muted>
+                    <source src="assets/MovingVertices.mp4" type="video/mp4">
+                </video>
+            </div>
+            <p>We treat the hidden states \( \mathbf{X} = [\mathbf{x}_1, \dots, \mathbf{x}_L] \) from a frozen LLM as nodes. Edges are formed based on cosine similarity. To isolate the strongest semantic dependencies, we prune weak connections that fall below a threshold \( \tau \), creating a sparse latent token graph.</p>
+        </div>
+
+        <div class="method-step">
+            <h3>Step 2: Refinement with Token-GNN</h3>
+            <div class="video-container">
+                <video controls autoplay loop muted>
+                    <source src="assets/TokenGNNRefinement.mp4" type="video/mp4">
+                </video>
+            </div>
+            <p>Tokens exchange information with their semantic neighbors via a \( K \)-layer message-passing Graph Neural Network. By aggregating neighborhood context \( \mathbf{a}_i^{(\ell)} \), GLOT captures complex dependencies that standard independent pooling cannot see, resulting in structurally refined tokens \( \mathbf{U} \).</p>
+        </div>
+
+        <div class="method-step">
+            <h3>Step 3: Readout Layer</h3>
+            <div class="video-container">
+                <video controls autoplay loop muted>
+                    <source src="assets/ReadoutLayer.mp4" type="video/mp4">
+                </video>
+            </div>
+            <p>Finally, we compute a learnable importance weight \( \pi_i \) for each refined token. A weighted sum collapses the graph into a single, robust sentence representation \( \mathbf{z} \). Because relational learning occurs before aggregation, GLOT knows exactly which tokens carry core meaning.</p>
+        </div>
+    </section>
+
+    <section id="results">
+        <h2>Key Results</h2>
+        <div class="results-grid">
+            <div class="result-card">
+                <h3>🛡️ Robust to Signal Dilution</h3>
+                <p>On a diagnostic task where 90% of tokens are random distractors, standard baselines (Mean, Max, AdaPool) collapse to random chance. GLOT maintains <strong>>97% classification accuracy</strong>.</p>
+                <img src="./assets/signal_dilution.png"
+                    class="interpolation-image"
+                    style="width: 100%; border-radius: 4px; margin-top: 15px;"
+                    alt="Chart showing GLOT maintaining over 97% accuracy at 90% signal dilution compared to baselines collapsing."/>
+            </div>
+            <!-- </div> -->
+            <div class="result-card">
+                <h3>📈 Superior General Language Understanding</h3>
+                <p>Evaluated on 56 diverse zero-shot MTEB tasks, GLOT consistently outperforms existing pooling methods across both encoder-only (BERT, RoBERTa) and decoder-only (Llama, Mistral) models.</p>
+                <img src="./assets/glue.png"
+                    class="interpolation-image"
+                    style="width: 100%; border-radius: 4px; margin-top: 15px;"
+                    alt="Chart showing GLOT maintaining superior performance on GLUE compared to standard pooling methods."/>
+            </div>
+            <div class="result-card">
+                <h3>⚡ High Performance, Minimal Cost</h3>
+                <p>Compared to baseline fine-tuning techniques, GLOT achieves competitive performance while drastically reducing both memory footprint and runtime.</p>
+                
+                <div class="efficiency-graphic">
+                    <div class="stat-col">
+                        <h4>Full Fine-Tuning</h4>
+                        <div class="stat-item">
+                            <span class="stat-value">7.11 B</span>
+                            <span class="stat-label">Parameters</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">32.59 GB</span>
+                            <span class="stat-label">Memory</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">1318 ms</span>
+                            <span class="stat-label">Runtime</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-divider"></div>
+
+                    <div class="stat-col">
+                        <h4>LoRA (r = 64)</h4>
+                        <div class="stat-item">
+                            <span class="stat-value">167.8 M</span>
+                            <span class="stat-label">Parameters</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">33.50 GB</span>
+                            <span class="stat-label">Memory</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">1454 ms</span>
+                            <span class="stat-label">Runtime</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-divider"></div>
+
+                    <div class="stat-col highlight-col">
+                        <h4>GLOT</h4>
+                        <div class="stat-item">
+                            <span class="stat-value">8.9 M</span>
+                            <span class="stat-label">Parameters</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">0.42 GB</span>
+                            <span class="stat-label">Memory</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">13.4 ms</span>
+                            <span class="stat-label">Runtime</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="bibtex">
+            <h2>BibTeX</h2>
+            <p>If you find our work useful, please cite our paper:</p>
+            <div class="results-grid">
+                <div class="result-card">
+                <pre><code>@inproceedings{mantri2026towards,
+title={Towards Improved Sentence Representations using Token Graphs},
+author={Krishna Sri Ipsit Mantri and Carola-Bibiane Sch{\"o}nlieb and Zorah L{\"a}hner and Moshe Eliasof},
+booktitle={The Fourteenth International Conference on Learning Representations},
+year={2026},
+url={https://openreview.net/forum?id=stMX9KBhUI}
+}</code></pre>
+                </div>
+            </div>
+    </section>
+</div>
+
+</body>
+</html>
